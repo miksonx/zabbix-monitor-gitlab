@@ -1,6 +1,6 @@
 # Monitor GitLab Projects with Zabbix
 This repo includes necessary scripts/templates for monitoring GitLab Project details over Zabbix.
-By using this solution you can gather and monitor below information over Zabbix.
+By using this solution you can gather and monitor below information (items) over Zabbix.
 
 Per Project:
 - Number of environments
@@ -18,10 +18,10 @@ You can filter projects which will be discovered by using regex in config or in 
 
 ## Solution Details
 This solution;
- - gather GitLab project details by running custom python scripts
+ - Gather GitLab project details by running custom python scripts
  - Use Zabbix Agent UserParameter feature to send data to Zabbix Server
  - Use Discovery Rules to discover projects in GitLab by running python script
- - Use Discovery Rule Items to gather information from Gitlab by running python script
+ - Use Discovery Rule Items to gather project related information from Gitlab by running python script
  
 ## Requirements
 This solution tested on below environments. You may experience problem in different versions.
