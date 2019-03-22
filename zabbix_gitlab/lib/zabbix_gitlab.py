@@ -49,13 +49,19 @@ def main():
     gitlab_url = json.load(open(args.config_file))["gitlab_url"]
     gitlab_token = json.load(open(args.config_file))["gitlab_token"]
     project_name_regex = json.load(open(args.config_file))["project_name_regex"]
+    owned = json.load(open(args.config_file))["owned"]
     action = args.action
-    logging.debug("token:[%s]", gitlab_token)
     logging.debug("gitlab-url:[%s]", gitlab_url)
-    gl = GitLab(gitlab_url, gitlab_token, project_name_regex)
+    logging.debug("gitlab_token:[%s]", gitlab_token)
+    logging.debug("project_name_regex:[%s]", project_name_regex)
+    logging.debug("owned:[%s]", owned)
+    logging.debug("action:[%s]", action)
+    gl = GitLab(gitlab_url, gitlab_token, project_name_regex, owned)
     if action == actions[0]:
+        logging.debug("Get projects")
         print gl.get_projects()
     elif action == actions[1]:
+        logging.debug("Get project")
         print gl.get_project(args.project_id)
 
 
@@ -65,16 +71,19 @@ class GitLab:
     """
     gl = None
 
-    def __init__(self, gitlab_url, gitlab_token, project_name_regex):
+    def __init__(self, gitlab_url, gitlab_token, project_name_regex, owned=True):
         """
         Init method of the class.
         :param gitlab_url: GitLab url to connect. Ex: https://gitlab.com
         :param gitlab_token: Personal Access token which is created in settings of your profile
         :param project_name_regex: Reqular expression for filtering projects. This way you filter the data
+        :param owned: set True to get projects owned by the user, set False to get all projects
         which will be sent to Zabbix Agent.
         """
+        logging.debug("Init method")
         self.project_name_regex = project_name_regex
         self.regex = re.compile(project_name_regex)
+        self.owned = owned
         self.gl = gitlab.Gitlab(gitlab_url, gitlab_token)
 
     def get_projects(self):
@@ -84,10 +93,19 @@ class GitLab:
         :return: print out projects id and name data in Zabbix Agent Json format.
         """
         data = []
-        for project in self.gl.projects.list(all=True):
+        if self.owned:
+            projects = self.gl.projects.list(owned=True)
+        else:
+            projects = self.gl.projects.list(all=True)
+
+        for project in projects:
+            logging.debug("Looping in projects")
             p_data = {"{#ID}": str(project.id), "{#NAME}": str(project.name)}
+            logging.debug("Project Json Data:[%s]", p_data)
             if self.regex.match(str(project.name)):
+                logging.debug("Pass regex control, add to data")
                 data.append(p_data)
+            logging.debug("Return data:[%s]", data)
         return self._construct_zabbix_json(data)
 
     def get_project(self, project_id):
@@ -96,6 +114,7 @@ class GitLab:
         :param project_id: Id of the project.
         :return: print out project related data in Standard Json format
         """
+        logging.debug("Get project information with Id:[%s]", project_id)
         data = {}
         project = self.gl.projects.get(project_id)
         data["projectName"] = project.name
@@ -110,6 +129,7 @@ class GitLab:
         data["mergedMergeRequests"] = len([m for m in merge_requests if m.state == "merged"])
         environments = project.environments.list(all=True)
         data["environmentTotal"] = len(environments)
+        logging.debug("Project data:[%s]", data)
         return json.dumps(data)
 
     def _construct_zabbix_json(self, data):
@@ -118,7 +138,9 @@ class GitLab:
         :param data: json data to convert
         :return: json data for Zabbix Agent Json format.
         """
+        logging.debug("Convert data to Zabbix Agent Json format")
         zabbix_data = {"data": data}
+        logging.debug("Zabbix Agent data:[%s]", data)
         return json.dumps(zabbix_data)
 
 
