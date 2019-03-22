@@ -1,0 +1,9 @@
+zabbix_agent_directory_path: /etc/zabbix
+zabbix_agentd_directory_path: "{{zabbix_agent_directory_path}}/zabbix_agentd.d"
+zabbix_agent_userparameter_file: "{{zabbix_agentd_directory_path}}/userparameter_gitlab.conf"
+gitlab_url: "https://gitlab.com"
+gitlab_token: "My Personal Access Token"
+gitlab_scripts_directory_name: gitlab-scripts
+gitlab_scripts_directory_path: "{{zabbix_agent_directory_path}}/{{gitlab_scripts_directory_name}}"
+config_json_file: "{{gitlab_scripts_directory_path}}/conf/config.json"
+project_name_regex: "project name | Project Name

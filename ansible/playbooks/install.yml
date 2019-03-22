@@ -1,0 +1,35 @@
+---
+- hosts: zabbix-agent
+  vars_files:
+    - ./vars/vars.yml
+  tasks:
+    - name: Install JQ package
+      package:
+        name: jq
+        state: present
+    - name: Stop Zabbix Agent Service
+      service:
+        name: zabbix-agent
+        state: stopped
+    - file:
+        path: "{{gitlab_scripts_directory_path}}"
+        state: directory
+    - name: Create userparameter_gitlab.conf file from template
+      template:
+        src: "{{playbook_dir}}/templates/userparameter_gitlab.j2"
+        dest: "{{zabbix_agent_userparameter_file}}"
+    - name: Copy scripts files to under zabbix agent
+      copy:
+        src: "{{playbook_dir}}/../../zabbix_gitlab/"
+        dest: "{{gitlab_scripts_directory_path}}"
+        mode: 775
+    - name: Create config.json from template
+      template:
+        src: "{{playbook_dir}}/templates/config.j2"
+        dest: "{{config_json_file}}"
+    - name: Install Zabbix-Monitor-Gitlab python scripts
+      command: pip install -e "{{gitlab_scripts_directory_path}}"
+    - name: Start Zabbix Agent
+      service:
+        name: zabbix-agent
+        state: started

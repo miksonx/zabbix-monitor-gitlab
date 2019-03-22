@@ -1,0 +1,5 @@
+{
+  "gitlab_token": "My Personal Access Token",
+  "gitlab_url": "https://gitlab.com",
+  "project_name_regex": "project Name| Project Name"
+}

@@ -1,0 +1,13 @@
+UserParameter=gitlab.projects,zabbix_gitlab --config-file {{config_json_file}} --action get-projects
+UserParameter=gitlab.project.name[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".projectName"
+UserParameter=gitlab.project.env.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".environmentTotal"
+UserParameter=gitlab.project.merge.request.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".mergeRequests"
+UserParameter=gitlab.project.merge.request.opened.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".openedMergeRequests"
+UserParameter=gitlab.project.merge.request.closed.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".closedMergeRequests"
+UserParameter=gitlab.project.merge.request.merged.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".mergedMergeRequests"
+UserParameter=gitlab.project.pipeline.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".pipelineTotal"
+UserParameter=gitlab.project.pipeline.success.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".pipelineSuccessTotal"
+UserParameter=gitlab.project.pipeline.pending.total[*],zabbix_gitlab --config-file {{config_json_file}} --action get-project --project-id $1 | jq -r ".pipelinePendingTotal"
+
+
+

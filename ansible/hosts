@@ -1,0 +1,2 @@
+[zabbix-agent]
+zabbix-agent-installed-host ansible_user=root
