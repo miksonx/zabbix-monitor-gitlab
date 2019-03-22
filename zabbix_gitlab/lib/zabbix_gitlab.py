@@ -41,6 +41,11 @@ else:
 
 
 def main():
+    """
+    Main function for command entry point. Gets projects or get project details depending on the parameters give form
+    command line
+    :return: print out data taken from Gitlab to pass Zabbix Agent
+    """
     gitlab_url = json.load(open(args.config_file))["gitlab_url"]
     gitlab_token = json.load(open(args.config_file))["gitlab_token"]
     project_name_regex = json.load(open(args.config_file))["project_name_regex"]
@@ -55,14 +60,29 @@ def main():
 
 
 class GitLab:
+    """
+    Main class for Gitlab Integration
+    """
     gl = None
 
     def __init__(self, gitlab_url, gitlab_token, project_name_regex):
+        """
+        Init method of the class.
+        :param gitlab_url: GitLab url to connect. Ex: https://gitlab.com
+        :param gitlab_token: Personal Access token which is created in settings of your profile
+        :param project_name_regex: Reqular expression for filtering projects. This way you filter the data
+        which will be sent to Zabbix Agent.
+        """
         self.project_name_regex = project_name_regex
         self.regex = re.compile(project_name_regex)
         self.gl = gitlab.Gitlab(gitlab_url, gitlab_token)
 
     def get_projects(self):
+        """
+        This method gets projects information from GitLab depending on the Regular Expression given in Init method.
+        Prints out the result json data.
+        :return: print out projects id and name data in Zabbix Agent Json format.
+        """
         data = []
         for project in self.gl.projects.list(all=True):
             p_data = {"{#ID}": str(project.id), "{#NAME}": str(project.name)}
@@ -71,6 +91,11 @@ class GitLab:
         return self._construct_zabbix_json(data)
 
     def get_project(self, project_id):
+        """
+        This method get project infromation from GitLab. Prints out the result json data.
+        :param project_id: Id of the project.
+        :return: print out project related data in Standard Json format
+        """
         data = {}
         project = self.gl.projects.get(project_id)
         data["projectName"] = project.name
@@ -88,6 +113,11 @@ class GitLab:
         return json.dumps(data)
 
     def _construct_zabbix_json(self, data):
+        """
+        This method converts standard json data to Zabbix Agent Json format.
+        :param data: json data to convert
+        :return: json data for Zabbix Agent Json format.
+        """
         zabbix_data = {"data": data}
         return json.dumps(zabbix_data)
 
